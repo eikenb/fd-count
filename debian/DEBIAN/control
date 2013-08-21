@@ -1,0 +1,8 @@
+Package: fd-count-~PROCESS~
+Version: ~VERSION~
+Section: utils
+Priority: optional
+Architecture: ~ARCH~
+Depends: redis-server
+Maintainer: John Eikenberry <jae@zhar.net>
+Description: Simple suid program to fetch file-descriptor counts for processes.
