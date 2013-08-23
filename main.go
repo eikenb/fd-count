@@ -2,31 +2,49 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
 )
 
+var warn int
+var crit int
+
+func init() {
+	flag.IntVar(&warn, "w", 500, "# of file descriptors to trigger warning")
+	flag.IntVar(&crit, "c", 900, "# of file descriptors to trigger critical")
+	flag.Parse()
+}
+
 // change this to process you care about
 const PROCESS = "~PROCESS~"
 
 func main() {
+	flag.Parse()
 	rc, pid := system("/bin/pidof", "-s", PROCESS)
 	if rc > 0 {
-		exit(rc, pid)
+		exit(rc, PROCESS+": process not found\n")
 	}
 	prod_pid_fd := fmt.Sprintf("/proc/%s/fd", bytes.Trim(pid, "\n"))
 	rc, out := system("/bin/ls", prod_pid_fd)
 	if rc > 0 {
-		exit(rc, out)
+		exit(rc, string(out))
 	}
 	cnt := bytes.Count(out, []byte("\n"))
-	fmt.Println(cnt)
+	msg := fmt.Sprintf("%s; file descriptor count: %d\n", PROCESS, cnt)
+	switch {
+	case cnt > crit:
+		exit(2, "CRIT: "+msg)
+	case cnt > warn:
+		exit(1, "WARN: "+msg)
+	}
+	fmt.Print(msg)
 }
 
-func exit(exit int, err []byte) {
-	fmt.Print(string(err))
+func exit(exit int, err string) {
+	fmt.Print(err)
 	os.Exit(exit)
 }
 
