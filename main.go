@@ -25,7 +25,8 @@ func main() {
 	flag.Parse()
 	rc, pid := system("/bin/pidof", "-s", PROCESS)
 	if rc > 0 {
-		exit(rc, PROCESS+": process not found\n")
+		// 0 as this app is not intended to check whether the app is running
+		exit(0, PROCESS+": process not found\n")
 	}
 	prod_pid_fd := fmt.Sprintf("/proc/%s/fd", bytes.Trim(pid, "\n"))
 	rc, out := system("/bin/ls", prod_pid_fd)
