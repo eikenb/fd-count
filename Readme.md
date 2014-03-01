@@ -13,8 +13,11 @@ code and add it to the name of the binary and package (so you can monitor
 multiple things on the same system).
 
 Eg. to create a binary for watching nginx..
+
     $ env PROCESS=nginx make
+
 To create a simple debian package..
+
     $ env PROCESS=nginx make deb
 
 See the Makefile for more.
